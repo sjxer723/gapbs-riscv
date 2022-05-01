@@ -10,10 +10,13 @@ GRAPH_DIR = benchmark/graphs
 RAW_GRAPH_DIR = benchmark/graphs/raw
 
 GRAPHS = twitter web road kron urand
+MTX_GRPAHS = flickr/flickr wikipedia-20070206/wikipedia-20070206 ljournal-2008/ljournal-2008
 ALL_GRAPHS =\
+	$(addsuffix .mtx, $(MTX_GRPAHS)) \
 	$(addsuffix .sg, $(GRAPHS)) \
 	$(addsuffix .wsg, $(GRAPHS)) \
 	$(addsuffix U.sg, $(GRAPHS))
+
 ALL_GRAPHS_WITH_PATHS = $(addprefix $(GRAPH_DIR)/, $(ALL_GRAPHS))
 
 $(RAW_GRAPH_DIR):
@@ -24,6 +27,27 @@ bench-graphs: $(RAW_GRAPH_DIR) $(ALL_GRAPHS_WITH_PATHS)
 
 
 # Real-world
+
+FLICKR_ULR = https://suitesparse-collection-website.herokuapp.com/MM/Gleich/flickr.tar.gz
+$(RAW_GRAPH_DIR)/flickr.tar.gz:
+	wget -P $(RAW_GRAPH_DIR) $(FLICKR_ULR)
+
+$(GRAPH_DIR)/flick/flickr.mtx: $(RAW_GRAPH_DIR)/flickr.tar.gz
+	tar -xvf $^ -C $(GRAPH_DIR)
+
+WIKIPEDIA_URL = https://suitesparse-collection-website.herokuapp.com/MM/Gleich/wikipedia-20070206.tar.gz
+$(RAW_GRAPH_DIR)/wikipedia-20070206.tar.gz:
+	wget -P $(RAW_GRAPH_DIR) $(WIKIPEDIA_URL)
+
+$(GRAPH_DIR)/wikipedia-20070206/wikipedia-20070206.mtx: $(RAW_GRAPH_DIR)/wikipedia-20070206.tar.gz
+	tar -xvf $^ -C $(GRAPH_DIR)
+
+LJOURNAL_URL = https://suitesparse-collection-website.herokuapp.com/MM/LAW/ljournal-2008.tar.gz
+$(RAW_GRAPH_DIR)/ljournal-2008.tar.gz: 
+	wget -P $(RAW_GRAPH_DIR) $(LJOURNAL_URL)
+
+$(GRAPH_DIR)/ljournal-2008/ljournal-2008.mtx: $(RAW_GRAPH_DIR)/ljournal-2008.tar.gz
+	tar -xvf $^ -C $(GRAPH_DIR)
 
 TWITTER_URL = https://github.com/ANLAB-KAIST/traces/releases/download/twitter_rv.net/twitter_rv.net.$*.gz
 $(RAW_GRAPH_DIR)/twitter_rv.net.%.gz:

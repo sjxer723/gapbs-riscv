@@ -13,4 +13,7 @@ test/out/*.out
 benchmark/out/*.out
 benchmark/graphs/*.sg
 benchmark/graphs/*.wsg
+benchmark/graphs/flickr/
+benchmark/graphs/ljournal-2008/
+benchmark/graphs/wikipedia-20070206/
 benchmark/graphs/raw/*
