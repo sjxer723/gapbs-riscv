@@ -34,6 +34,8 @@ $(RAW_GRAPH_DIR)/flickr.tar.gz:
 
 $(GRAPH_DIR)/flick/flickr.mtx: $(RAW_GRAPH_DIR)/flickr.tar.gz
 	tar -xvf $^ -C $(GRAPH_DIR)
+	mv $(GRAPH_DIR)/flick/flickr.mtx $(GRAPH_DIR)
+	rm -rf $(GRAPH_DIR)/flick
 
 WIKIPEDIA_URL = https://suitesparse-collection-website.herokuapp.com/MM/Gleich/wikipedia-20070206.tar.gz
 $(RAW_GRAPH_DIR)/wikipedia-20070206.tar.gz:
@@ -41,6 +43,8 @@ $(RAW_GRAPH_DIR)/wikipedia-20070206.tar.gz:
 
 $(GRAPH_DIR)/wikipedia-20070206/wikipedia-20070206.mtx: $(RAW_GRAPH_DIR)/wikipedia-20070206.tar.gz
 	tar -xvf $^ -C $(GRAPH_DIR)
+	mv $(GRAPH_DIR)/wikipedia-20070206/wikipedia-20070206.mtx $(GRAPH_DIR)
+	rm -rf $(GRAPH_DIR)/wikipedia-20070206
 
 LJOURNAL_URL = https://suitesparse-collection-website.herokuapp.com/MM/LAW/ljournal-2008.tar.gz
 $(RAW_GRAPH_DIR)/ljournal-2008.tar.gz: 
@@ -48,6 +52,8 @@ $(RAW_GRAPH_DIR)/ljournal-2008.tar.gz:
 
 $(GRAPH_DIR)/ljournal-2008/ljournal-2008.mtx: $(RAW_GRAPH_DIR)/ljournal-2008.tar.gz
 	tar -xvf $^ -C $(GRAPH_DIR)
+	mv $(GRAPH_DIR)/ljournal-2008/ljournal-2008.mtx $(GRAPH_DIR)
+	rm -rf $(GRAPH_DIR)/ljournal-2008
 
 TWITTER_URL = https://github.com/ANLAB-KAIST/traces/releases/download/twitter_rv.net/twitter_rv.net.$*.gz
 $(RAW_GRAPH_DIR)/twitter_rv.net.%.gz:
@@ -149,13 +155,26 @@ BENCH_ORDER = \
 	sssp-twitter sssp-web sssp-road sssp-kron sssp-urand \
 	tc-twitter tc-web tc-road
 
+# Three additional real-world workload
+BENCH_ORDER1 = 	\
+	bfs-flickr pr-flickr cc-flickr bc-flickr sssp-flickr \
+	bfs-wikipedia-20070206 pr-wikipedia-20070206 cc-wikipedia-20070206 bc-wikipedia-20070206 sssp-wikipedia-20070206 \
+	bfs-ljournal-2008 pr-ljournal-2008 cc-ljournal-2008 bc-ljournal-2008 sssp-ljournal-2008 \
+
 OUTPUT_FILES = $(addsuffix .out, $(addprefix $(OUTPUT_DIR)/, $(BENCH_ORDER)))
+OUTPUT_FILES1 = $(addsuffix .out, $(addprefix $(OUTPUT_DIR)/, $(BENCH_ORDER1)))
 
 .PHONY: bench-run
 bench-run: $(OUTPUT_DIR) $(OUTPUT_FILES)
+bench-run1: $(OUTPUT_DIR) $(OUTPUT_FILES1)
+bench-run1-clean: 
+	rm -rf benchmark/out
 
-$(OUTPUT_DIR)/bfs-%.out : $(GRAPH_DIR)/%.sg bfs
+$(OUTPUT_DIR)/bfs-%.out : $(GRAPH_DIR)/%.sg bfs   
 	./bfs -f $< -n64 > $@
+
+$(OUTPUT_DIR)/bfs-%.out :$(GRAPH_DIR)/%.mtx bfs  
+	perf stat -B -e cycles:u,instructions:u -a -C 0,2-3 ./bfs -f $<  -n64 > $@ 2>&1
 
 SSSP_ARGS = -n64
 $(OUTPUT_DIR)/sssp-twitter.out: $(GRAPH_DIR)/twitter.wsg sssp
@@ -176,11 +195,24 @@ $(OUTPUT_DIR)/sssp-urand.out: $(GRAPH_DIR)/urand.wsg sssp
 $(OUTPUT_DIR)/pr-%.out: $(GRAPH_DIR)/%.sg pr
 	./pr -f $< -i1000 -t1e-4 -n16 > $@
 
+$(OUTPUT_DIR)/sssp-%.out : $(GRAPH_DIR)/%.mtx bfs 
+	perf stat -B -e cycles:u,instructions:u -a -C 0,2-3 ./sssp -f $<  > $@ 2>&1
+
+$(OUTPUT_DIR)/pr-%.out : $(GRAPH_DIR)/%.mtx bfs
+	perf stat -B -e cycles:u,instructions:u -a -C 0,2-3 ./pr -f $< -n64 > $@ 2>&1
+
 $(OUTPUT_DIR)/cc-%.out: $(GRAPH_DIR)/%.sg cc
 	./cc -f $< -n16 > $@
+
+$(OUTPUT_DIR)/cc-%.out : $(GRAPH_DIR)/%.mtx bfs 
+	perf stat -B -e cycles:u,instructions:u -a -C 0,2-3 ./pr -f $<  > $@ 2>&1
 
 $(OUTPUT_DIR)/bc-%.out: $(GRAPH_DIR)/%.sg bc
 	./bc -f $< -i4 -n16 > $@
 
+$(OUTPUT_DIR)/bc-%.out :$(GRAPH_DIR)/%.mtx bfs 
+	perf stat -B -e cycles:u,instructions:u -a -C 0,2-3 ./bc -f $<  > $@ 2>&1
+
 $(OUTPUT_DIR)/tc-%.out: $(GRAPH_DIR)/%U.sg tc
 	./tc -f $< -n3 > $@
+
