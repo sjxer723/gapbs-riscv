@@ -11,6 +11,7 @@ tc
 test/out/*.out
 
 benchmark/out/*.out
+benchmark/out/*.png
 benchmark/graphs/*.sg
 benchmark/graphs/*.wsg
 benchmark/graphs/*.mtx
