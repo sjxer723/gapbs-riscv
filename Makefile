@@ -1,6 +1,6 @@
 # See LICENSE.txt for license details.
 
-CXX_FLAGS += -std=c++11 -O3 -Wall
+CXX_FLAGS += -std=c++11 -O3 -Wall -static
 PAR_FLAG = -fopenmp
 
 ifneq (,$(findstring icpc,$(CXX)))
@@ -23,7 +23,7 @@ SUITE = $(KERNELS) converter
 all: $(SUITE)
 
 % : src/%.cc src/*.h
-	$(CXX) $(CXX_FLAGS) $< -o $@
+	riscv64-unknown-linux-gnu-g++ $(CXX_FLAGS) $< -o $@
 
 # Testing
 include test/test.mk
