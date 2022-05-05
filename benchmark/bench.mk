@@ -10,12 +10,12 @@ GRAPH_DIR = benchmark/graphs
 RAW_GRAPH_DIR = benchmark/graphs/raw
 
 GRAPHS = twitter web road kron urand
-MTX_GRPAHS = flickr/flickr wikipedia-20070206/wikipedia-20070206 ljournal-2008/ljournal-2008
+MTX_GRPAHS = flickr wikipedia-20070206 ljournal-2008
 ALL_GRAPHS =\
 	$(addsuffix .mtx, $(MTX_GRPAHS)) \
-	$(addsuffix .sg, $(GRAPHS)) \
-	$(addsuffix .wsg, $(GRAPHS)) \
-	$(addsuffix U.sg, $(GRAPHS))
+	#$(addsuffix .sg, $(GRAPHS)) \
+	#$(addsuffix .wsg, $(GRAPHS)) \
+	#$(addsuffix U.sg, $(GRAPHS))
 
 ALL_GRAPHS_WITH_PATHS = $(addprefix $(GRAPH_DIR)/, $(ALL_GRAPHS))
 
@@ -32,16 +32,16 @@ FLICKR_ULR = https://suitesparse-collection-website.herokuapp.com/MM/Gleich/flic
 $(RAW_GRAPH_DIR)/flickr.tar.gz:
 	wget -P $(RAW_GRAPH_DIR) $(FLICKR_ULR)
 
-$(GRAPH_DIR)/flick/flickr.mtx: $(RAW_GRAPH_DIR)/flickr.tar.gz
+$(GRAPH_DIR)/flickr.mtx: $(RAW_GRAPH_DIR)/flickr.tar.gz
 	tar -xvf $^ -C $(GRAPH_DIR)
-	mv $(GRAPH_DIR)/flick/flickr.mtx $(GRAPH_DIR)
+	mv $(GRAPH_DIR)/flickr/flickr.mtx $(GRAPH_DIR)
 	rm -rf $(GRAPH_DIR)/flick
 
 WIKIPEDIA_URL = https://suitesparse-collection-website.herokuapp.com/MM/Gleich/wikipedia-20070206.tar.gz
 $(RAW_GRAPH_DIR)/wikipedia-20070206.tar.gz:
 	wget -P $(RAW_GRAPH_DIR) $(WIKIPEDIA_URL)
 
-$(GRAPH_DIR)/wikipedia-20070206/wikipedia-20070206.mtx: $(RAW_GRAPH_DIR)/wikipedia-20070206.tar.gz
+$(GRAPH_DIR)/wikipedia-20070206.mtx: $(RAW_GRAPH_DIR)/wikipedia-20070206.tar.gz
 	tar -xvf $^ -C $(GRAPH_DIR)
 	mv $(GRAPH_DIR)/wikipedia-20070206/wikipedia-20070206.mtx $(GRAPH_DIR)
 	rm -rf $(GRAPH_DIR)/wikipedia-20070206
@@ -50,7 +50,7 @@ LJOURNAL_URL = https://suitesparse-collection-website.herokuapp.com/MM/LAW/ljour
 $(RAW_GRAPH_DIR)/ljournal-2008.tar.gz: 
 	wget -P $(RAW_GRAPH_DIR) $(LJOURNAL_URL)
 
-$(GRAPH_DIR)/ljournal-2008/ljournal-2008.mtx: $(RAW_GRAPH_DIR)/ljournal-2008.tar.gz
+$(GRAPH_DIR)/ljournal-2008.mtx: $(RAW_GRAPH_DIR)/ljournal-2008.tar.gz
 	tar -xvf $^ -C $(GRAPH_DIR)
 	mv $(GRAPH_DIR)/ljournal-2008/ljournal-2008.mtx $(GRAPH_DIR)
 	rm -rf $(GRAPH_DIR)/ljournal-2008
